@@ -38,7 +38,7 @@ public class EscapeCutscene : MonoBehaviour {
                     SingleScene("", Sprites[3]);
                     break;
                 case 4:
-                    TextScroller.ScrollText("");
+                    TextScroller.DisplayText("");
                     FadeToWhite.gameObject.SetActive(true);
                     FadeToWhite.canvasRenderer.SetAlpha(0.01f);
                     FadeToWhite.CrossFadeAlpha(1.0f, 2.0f, false);
@@ -56,7 +56,7 @@ public class EscapeCutscene : MonoBehaviour {
             {
                 CutsceneImage.sprite = null;
                 CutsceneImage.gameObject.SetActive(false);
-                TextScroller.ScrollText("");
+                TextScroller.DisplayText("");
                 Destroy(gameObject);
             }
         }
@@ -66,7 +66,7 @@ public class EscapeCutscene : MonoBehaviour {
     private void SingleScene(string text, Sprite sprite)
     {
         CutsceneImage.sprite = sprite;
-        TextScroller.ScrollText(text);
+        TextScroller.DisplayText(text);
     }
 
     public void ActivateFirstScene()

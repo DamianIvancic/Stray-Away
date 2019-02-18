@@ -6,21 +6,25 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
+    public CameraController MainCam;
+    public AudioSource MainAudio;
     public PlayerController Player;
     public InputManager InputManager;
     public SLSManager SaveLoadSystem;
     public UIManager UI;
     public HealthManager HPManager;
     public InventoryManager Inventory;
-    //[HideInInspector]
-    public CameraController MainCam;
-
+    public CutsceneManager CutsceneManager;
+   
     public enum GameState
     {
-        Start,
+        Menu,
         Playing,
+        Dialogue,
         Paused,
-        GameOver
+        Cutscene,
+        GameOver,
+        Finished
     }
 
     [HideInInspector]
@@ -39,7 +43,7 @@ public class GameManager : MonoBehaviour {
             switch (SceneIndex)
             {
                 case (0):
-                    _gameState = GameState.Start;
+                    _gameState = GameState.Menu;
                     break;
                 default:
                     _gameState = GameState.Playing;
@@ -49,8 +53,8 @@ public class GameManager : MonoBehaviour {
             if (Inventory != null)
                 Inventory.Initialize();
 
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
+            SceneManager.sceneLoaded += OnSceneLoadedListener;
+           
             DontDestroyOnLoad(gameObject);
         }
     }
@@ -66,29 +70,43 @@ public class GameManager : MonoBehaviour {
         {
             UI.SetGameOverMenu(true);
         }
+        else if(_gameState == GameState.Finished)
+        {
+            Debug.Log("Finished");
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {    //LoadScene(0);
+                Application.Quit();
+            }
+        }
 	}
 
-    public void InitializeSettings() //saves settings into a file in binary format
+    void OnSceneLoadedListener(Scene scene, LoadSceneMode mode) //listener for SceneManager.sceneLoaded
     {
-        SaveLoadSystem.Settings = new Settings(InputManager.KeyBindings);
-        SaveLoadSystem.SaveSettings();
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode) //callback for SceneManager.sceneLoaded
-    {
-        MainCam = FindObjectOfType<CameraController>();
-
         int SceneIndex = SceneManager.GetActiveScene().buildIndex;
 
         switch (SceneIndex)
         {
             case (0):
-                _gameState = GameState.Start;
+                _gameState = GameState.Menu;
                 break;
-            default:
-                StartGame();
+            case (1):                         
+                MainCam = FindObjectOfType<CameraController>();
+                if(MainAudio == null)
+                MainAudio = GameObject.FindWithTag("MainAudio").GetComponent<AudioSource>();
+                UI.SetPauseMenu(false);             
+                CutsceneManager.PlayCutscene(0);
                 break;
+            case (2):
+                _gameState = GameState.Finished;
+                break;   
         }
+    }
+
+    public void InitializeSettings() //saves settings into a file in binary format
+    {
+        SaveLoadSystem.Settings = new Settings(InputManager.KeyBindings);
+        SaveLoadSystem.SaveSettings();
     }
 
     public void SetState(GameState state)
@@ -113,17 +131,32 @@ public class GameManager : MonoBehaviour {
     }
 
     public void StartGame()
-    {
-        _gameState = GameState.Playing;
+    {     
         UI.UIHearts.SetActive(true);
+
+        if (Inventory.Contains("PowerCell"))
+            UI.PowerCellUI.gameObject.SetActive(true);
+
+       
+        if (UI.MeteorTimer._started)
+            UI.MeteorTimer.gameObject.SetActive(true);
+
         UI.SetPauseMenu(false);
+        _gameState = GameState.Playing;  
     }
 
     public void PauseGame()
-    {
-        _gameState = GameState.Paused;
+    {     
         UI.UIHearts.SetActive(false);
+
+        if (Inventory.Contains("PowerCell"))
+            UI.PowerCellUI.gameObject.SetActive(false);
+    
+        if(UI.MeteorTimer._started)
+            UI.MeteorTimer.gameObject.SetActive(false);
+
         UI.SetPauseMenu(true);
+        _gameState = GameState.Paused;
     }
 
     public void QuitGame()

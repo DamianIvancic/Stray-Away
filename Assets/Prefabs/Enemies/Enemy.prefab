@@ -220,7 +220,8 @@ AudioSource:
   m_GameObject: {fileID: 1358010293252468}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 557daa99073ac354790115d67704f871,
+    type: 2}
   m_audioClip: {fileID: 8300000, guid: 63fe41ddf4159a44fa9b3fa88f71a4b2, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.196
@@ -349,13 +350,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d54fec779b87aa947b3ff80deedaf929, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 8
+  MaxSpeed: 15
+  MaxPrediction: 10
+  Accel: 2
   Health: 2
-  Stunned: 0
-  IsDead: 0
-  Player: {fileID: 0}
-  InvulTimer: 1
-  InvulMax: 1
+  DamagedSound: {fileID: 0}
+  _stunned: 0
+  _dead: 0
+  CollisionRadius: 0.4
 --- !u!212 &212486740799269204
 SpriteRenderer:
   m_ObjectHideFlags: 1

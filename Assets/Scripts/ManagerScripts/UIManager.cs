@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 
@@ -13,21 +15,24 @@ public class UIManager : MonoBehaviour {
     public Toggle FullScreenToggle;
     public AudioMixer Mixer;
     public Dropdown ResolutionsDropdown;
-    public Image DialogueBox;
+    public GameObject DialogueBox;
+    public TextScroller DialogueText;
     public GameObject UIHearts;
-  
+    public Text PowerCellUI;
+    public Timer MeteorTimer;
+    public Text MeteorText;
+    public GameObject RocketOptions;
+
     private Resolution[] _resolutions;
-    private static UIManager UI;
-    
+   
 	void Start ()
     {
-        if(UI == null)
+        if (GameManager._GM.UI == this)
         {
-            UI = this;
-
+         
             FullScreenToggle.isOn = Screen.fullScreen;
 
-            _resolutions = Screen.resolutions;
+            _resolutions = Screen.resolutions.Select(resolution => new Resolution { width = resolution.width, height = resolution.height }).Distinct().ToArray();
 
             ResolutionsDropdown.ClearOptions();
 
@@ -50,16 +55,62 @@ public class UIManager : MonoBehaviour {
             ResolutionsDropdown.value = resolutionIndex;
             ResolutionsDropdown.RefreshShownValue();
 
+            DialogueText.Start();
+
+            SceneManager.sceneLoaded += OnSceneLoadedListener;
+            ItemPickup.OnItemPickedUpCallback += PowerCellListener;
+            Cutscene.OnCutsceneFinishedCallback += CutsceneListener;
+
             DontDestroyOnLoad(gameObject);
-        }     
+        }
+        else
+            Destroy(gameObject);
 	}
 	
 	// Update is called once per frame
 	void Update ()
-    {
-
-	
+    {	
 	}
+
+    void OnSceneLoadedListener(Scene scene, LoadSceneMode mode)
+    {
+        int SceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+        switch (SceneIndex)
+        {
+            case (0):
+                SetGameOverMenu(false);
+                SetPauseMenu(true);
+                UIHearts.SetActive(false);           
+                break;
+            case (1):            
+                SetPauseMenu(false);
+                SetGameOverMenu(false);
+                break;
+            case (2):
+                UIHearts.SetActive(false);
+                break;
+        }
+    }
+
+    void PowerCellListener(Item item)
+    {
+        if (item.ItemName == "PowerCell")
+        {
+            if (PowerCellUI.gameObject.activeSelf == false)
+                PowerCellUI.gameObject.SetActive(true);
+
+            PowerCellUI.text = "x" + GameManager._GM.Inventory.GetCount(item);
+        }
+    }
+
+    void CutsceneListener(string cutsceneName)
+    {
+        if (cutsceneName == "SiloCutscene")
+        {
+            MeteorTimer.Initialize();
+        }
+    }
 
     public void SetPauseMenu(bool pause)
     {
@@ -82,6 +133,11 @@ public class UIManager : MonoBehaviour {
         GameOverPanel.SetActive(state);
     }
 
+    public void SetRocketOptions(bool state)
+    {
+        RocketOptions.SetActive(state);
+    }
+
     public void SetFullScreen(bool fullScreen)
     {
         Screen.fullScreen = fullScreen;
@@ -100,14 +156,14 @@ public class UIManager : MonoBehaviour {
 
     public void EnableDialogue(bool state)
     {
-        DialogueBox.gameObject.SetActive(state);
+        DialogueBox.SetActive(state);
     }
 
     public void PlayButton()
     {
         GameManager GM = GameManager._GM;
 
-        if (GM._gameState == GameManager.GameState.Start)          
+        if (GM._gameState == GameManager.GameState.Menu)          
             GM.LoadScene(1);              
         else if (GM._gameState == GameManager.GameState.Paused)
             GM.StartGame();

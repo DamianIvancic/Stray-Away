@@ -9,12 +9,17 @@ public class SLSManager : MonoBehaviour
     [HideInInspector]
     public Settings Settings;
 
-    void Awake()
+    void Start()
     {
-        string path = Application.persistentDataPath + "/Settings.dat";
+        if (GameManager._GM.SaveLoadSystem == this)
+        {
+            string path = Application.persistentDataPath + "/Settings.dat";
 
-        if (File.Exists(path))
-            LoadSettings();
+            if (File.Exists(path))
+                LoadSettings();
+        }
+        else
+            Destroy(gameObject);     
     }
 
     public void SaveSettings()

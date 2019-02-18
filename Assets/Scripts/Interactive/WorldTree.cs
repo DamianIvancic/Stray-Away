@@ -5,22 +5,17 @@ using UnityEngine;
 public class WorldTree : Interactable {
 
 
-    public TextScroller TextScroller;
+    private TextScroller TextScroller;
 
     void Start()
     {
-        Initialize();
+        TextScroller = GameManager._GM.UI.DialogueBox.GetComponentInChildren<TextScroller>();
     }
 
-    void Initialize()
-    {
-        TextScroller = (TextScroller)FindObjectOfType(typeof(TextScroller));
-    }
 
     public override void DoOnInteract()
     {
-        base.DoOnInteract();
-        TextScroller.ScrollText("You're safe here - this is your home. You feel good. ");
+        TextScroller.DisplayText("You're safe here - this is your home. You feel good and your HP is restored.");
         GameManager._GM.HPManager.RestoreHP();
     }
 }

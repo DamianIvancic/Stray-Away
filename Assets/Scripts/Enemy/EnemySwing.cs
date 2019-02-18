@@ -11,8 +11,12 @@ public class EnemySwing : MonoBehaviour {
 
     private Animator _anim;
 
+    void Start()
+    {
+        _anim = GetComponentInParent<Animator>();
+    }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
 
         if (collision.tag == "Player")
@@ -21,13 +25,13 @@ public class EnemySwing : MonoBehaviour {
         }
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.tag == "Player" && GameManager._GM._gameState == GameManager.GameState.Playing)
             _anim.SetTrigger("IsSwinging");           
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.tag == "Player")
         {
@@ -35,10 +39,4 @@ public class EnemySwing : MonoBehaviour {
             _playerInRange = false;        
         }
     }
-
-    private void Start()
-    {
-        _anim = GetComponentInParent<Animator>();
-    }
-
 }

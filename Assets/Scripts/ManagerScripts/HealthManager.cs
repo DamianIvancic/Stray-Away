@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class HealthManager : MonoBehaviour {
@@ -15,6 +16,10 @@ public class HealthManager : MonoBehaviour {
 
     private int _currentHealth;
     private List<Image> _HPHearts;
+    private AudioSource _damageSound;
+
+    public delegate void OnDamageTaken();
+    public static OnDamageTaken OnDamageTakenCallback;
 
     void Start ()
     {
@@ -22,29 +27,44 @@ public class HealthManager : MonoBehaviour {
 
         _HPHearts = new List<Image>();
 
+        _damageSound = GetComponent<AudioSource>();
+
         for (int i = 0; i <_maxHealth; i++)
         {        
             _HPHearts.Add(Instantiate(HPHeart, gameObject.transform));
         }
+
+        SceneManager.sceneLoaded += OnSceneLoadedListener;
     }
 
-    private void Update()
+    void Update()
     {
         InvulTimer += Time.deltaTime;
     }
 
+    void OnSceneLoadedListener(Scene scene, LoadSceneMode mode)
+    {
+        RestoreHP();
+    }
+
     public void TakeDamage(int damage=1)
     {
-        if (InvulTimer > InvulMax)
+        if(GameManager._GM._gameState == GameManager.GameState.Playing)
         {
-            InvulTimer = 0;
+            if (InvulTimer > InvulMax)
+            {
+                InvulTimer = 0;
 
-            _currentHealth -= damage;
-            RefreshHearts();
+                _currentHealth -= damage;
+                _damageSound.Play();
+                RefreshHearts();
 
-            if (_currentHealth <= 0)
-                GameManager._GM.SetState(GameManager.GameState.GameOver);
-        }
+                if (_currentHealth <= 0)
+                {
+                    GameManager._GM.SetState(GameManager.GameState.GameOver);                 
+                }
+            }
+        }      
     }
 
     public void RestoreHP()

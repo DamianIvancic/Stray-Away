@@ -23,6 +23,7 @@ public class CrawlerSwing : StateMachineBehaviour {
         if (stateInfo.normalizedTime > 0.9f && ready == true && SwingScript._playerInRange)
         {
             GameManager._GM.HPManager.TakeDamage();
+            HealthManager.OnDamageTakenCallback.Invoke();
             ready = false;
         }
     }

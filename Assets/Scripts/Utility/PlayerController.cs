@@ -2,43 +2,52 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-[System.Serializable]
+
 public class PlayerController : MonoBehaviour {
 
-    public float Speed = 10;
-    public int Damage = 10;
+    public float Speed = 15;
+    public int Damage = 1;
 
     public GameObject InteractSprite;
-    public bool TextFinished = false;
-
+   
     private Animator _anim;
-    private Rigidbody2D _rb;
-    private Interactable interactableScript;
+    [HideInInspector]
+    public Rigidbody2D _rb;
+    private AudioSource _swingSound;
+    [HideInInspector]
+    public Interactable interactableScript;
 
     private float _movementH;
     private float _movementV;
     private Vector2 _movement;
     private bool _isSwinging;
-
-    private AudioSource SwingSound;
-
-    private static PlayerController Player;
+    private Vector2 _startingPos;
 
     private void Start()
     {
-        if(Player == null)
+        if (GameManager._GM.Player == null)
         {
-            Player = this;
-         
+            GameManager._GM.Player = this;
+
             _anim = GetComponentInChildren<Animator>();
             _rb = GetComponent<Rigidbody2D>();
-            SwingSound = GetComponent<AudioSource>();
+            _swingSound = GetComponent<AudioSource>();
 
-            DontDestroyOnLoad(gameObject);       
-        }       
+            _startingPos = new Vector2(87, 19);
+
+            RegisterCallbacks();
+
+            SceneManager.sceneLoaded += OnSceneLoadedListener;
+
+            DontDestroyOnLoad(gameObject);
+        }
+        else               
+            Destroy(gameObject);
+        
     }
 
     // Update is called once per frame
@@ -46,8 +55,13 @@ public class PlayerController : MonoBehaviour {
 
         if (GameManager._GM._gameState == GameManager.GameState.Playing)
         {
-            UpdateMovement();               
-            UpdateAnimator();  
+            UpdateMovement();
+            UpdateAnimator();
+        }
+        else if(GameManager._GM._gameState == GameManager.GameState.Paused || GameManager._GM._gameState == GameManager.GameState.GameOver)
+        {
+            _rb.velocity = Vector2.zero;
+            _anim.SetBool("IsMoving", false);
         }
     }
 
@@ -56,99 +70,86 @@ public class PlayerController : MonoBehaviour {
         _movement = new Vector2(_movementH, _movementV);
         _movement.Normalize();
 
-        switch ((int)(_movementH + _movementV))
-        {
-            case 0:
-                _anim.SetBool("IsMoving", false);
-                break;
-
-            default:
-                _anim.SetBool("IsMoving", true);
-                break;
-        }
-
         _rb.velocity = _movement * Speed;
     }
 
     void UpdateAnimator()
     {
+        if(_rb.velocity.magnitude > 0)
+            _anim.SetBool("IsMoving", true);
+        else
+            _anim.SetBool("IsMoving", false);
+
         SetOrientation();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnSceneLoadedListener(Scene scene, LoadSceneMode mode) //listener for SceneManager.sceneLoaded
     {
-        if (collision.tag == "Damageable")
-        {
-            collision.GetComponentInParent<EnemyScript>().TakeDamage(Damage);
-        }
+        int SceneIndex = SceneManager.GetActiveScene().buildIndex;
 
-        if (collision.tag == "Interactable")
-        {
-            InteractSprite.SetActive(true);
-            interactableScript = collision.GetComponent<Interactable>();
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.tag == "Interactable")
-            Interact();
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.tag == "Interactable")
-        {
-            InteractSprite.SetActive(false);
-            interactableScript = null;
+        switch (SceneIndex)
+        {         
+            case(1):
+                gameObject.SetActive(true);
+                transform.position = _startingPos;
+                break;
+            default:
+                gameObject.SetActive(false);
+                break;
         }
     }
 
-   
+
     private void SetOrientation()
     {
-        switch ((int)_movementH)
+        
+        if(_rb.velocity.x < 0)
         {
-            case -1:
-                _anim.SetBool("Right", false);
-                _anim.SetBool("Left", true);
-                break;
-
-            case 1:
-                _anim.SetBool("Right", true);
-                _anim.SetBool("Left", false);
-                break;
-
-            case 0:
-                _anim.SetBool("Right", false);
-                _anim.SetBool("Left", false);
-                break;
-
-            default:
-                break;
+            _anim.SetBool("Right", false);
+            _anim.SetBool("Left", true);
+        }
+        else if(_rb.velocity.x == 0)
+        {
+            _anim.SetBool("Right", false);
+            _anim.SetBool("Left", false);
+        }
+        else if(_rb.velocity.x > 0)
+        {
+            _anim.SetBool("Right", true);
+            _anim.SetBool("Left", false);
         }
 
-        switch ((int)_movementV)
+
+        if(_rb.velocity.y <0)
         {
-            case -1:
-                _anim.SetBool("Up", false);
-                _anim.SetBool("Down", true);
-                break;
-
-            case 1:
-                _anim.SetBool("Up", true);
-                _anim.SetBool("Down", false);
-                break;
-
-            case 0:
-                _anim.SetBool("Up", false);
-                _anim.SetBool("Down", false);
-                break;
-
-            default:
-                break;
+            _anim.SetBool("Up", false);
+            _anim.SetBool("Down", true);
+        }
+        else if(_rb.velocity.y == 0)
+        {
+            _anim.SetBool("Up", false);
+            _anim.SetBool("Down", false);
+        }
+        else if(_rb.velocity.y > 0)
+        {
+            _anim.SetBool("Up", true);
+            _anim.SetBool("Down", false);
         }
     }
+
+
+    #region Collisions -> all the collision/trigger functions go here
+    //interacting with objects is done via the interact callback which can be validly called whenever the InteractSprite is active 
+    //the sprite gets activated from the interactable script's trigger/collision methods (so they can be overriden if needed)
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Damageable")     
+            collision.GetComponentInParent<EnemyScript>().TakeDamage(Damage);       
+    }
+
+    #endregion -> all the  -> all the collision/trigger functions go here
+
 
     #region Callbacks - > All the callback functions go here
 
@@ -182,6 +183,17 @@ public class PlayerController : MonoBehaviour {
         _movementH = 0;
     }
 
+
+    public void ResetMovement()
+    {
+        _movement = Vector2.zero;
+        _movementH = 0;
+        _movementV = 0;
+        _rb.velocity = _movement;
+
+        UpdateAnimator();
+    }
+
     public void Interact()
     {
         if (InteractSprite.activeSelf)
@@ -193,7 +205,7 @@ public class PlayerController : MonoBehaviour {
 
     public void Swing()
     {
-        SwingSound.Play();
+        _swingSound.Play();
         _anim.SetTrigger("IsSwinging");
     }
 
@@ -235,9 +247,9 @@ public class PlayerController : MonoBehaviour {
                 case ("Interact"):
                     action.ActionCallBack += Interact;
                     break;
-                case ("Inventory"):
+                /*case ("Inventory"):
                     action.ActionCallBack += Inventory;
-                    break;
+                    break;*/
             }
         }     
     }

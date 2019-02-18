@@ -36,13 +36,11 @@ public class InputManager : MonoBehaviour {
         public OnActionRegistered StopActionCallBack;
     }
 
-   
     private GameObject CurrentKey;
 
-	void Awake ()
+	void Start ()
     {
-        if (SceneManager.GetActiveScene().buildIndex == 0)
-        {
+    
             string path = Application.persistentDataPath + "/Settings.dat";
 
             if (File.Exists(path))
@@ -54,21 +52,23 @@ public class InputManager : MonoBehaviour {
             }
 
             RefreshDisplayedKeyBindings();
-            GameManager._GM.Player.RegisterCallbacks();
-        }
+         
     }
 
     void Update()
     {
+      
         if (GameManager._GM._gameState == GameManager.GameState.Playing)
         {
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
-
+    
             foreach (Action Binding in KeyBindings)
             {
                 if (Input.GetKeyDown(Binding.KeyCode) && Binding.ActionCallBack != null)
-                    Binding.ActionCallBack.Invoke();
+                {
+                    Binding.ActionCallBack.Invoke();             
+                }
 
                 if (Input.GetKeyUp(Binding.KeyCode) && Binding.StopActionCallBack != null)
                     Binding.StopActionCallBack.Invoke();
@@ -94,7 +94,7 @@ public class InputManager : MonoBehaviour {
             else if (e.isKey)
                 Code = e.keyCode;
 
-            if (Code != KeyCode.None)
+            if (Code != KeyCode.None && Code != KeyCode.E)
             {
                 foreach (Action Binding in KeyBindings) //loops through all bindings 
                 {
@@ -120,7 +120,8 @@ public class InputManager : MonoBehaviour {
 
                 GameManager._GM.InitializeSettings();
 
-                GameManager._GM.Player.RegisterCallbacks();            
+                if(GameManager._GM.Player != null)
+                    GameManager._GM.Player.RegisterCallbacks();            
             }
         }
     }
@@ -129,16 +130,16 @@ public class InputManager : MonoBehaviour {
     {
         KeyBindings = new List<Action>();
 
-        Action MoveUp = new Action("Up", KeyCode.W);  
+        Action MoveUp = new Action("Up", KeyCode.UpArrow);  
         KeyBindings.Add(MoveUp);
       
-        Action MoveLeft = new Action("Left", KeyCode.A);
+        Action MoveLeft = new Action("Left", KeyCode.LeftArrow);
         KeyBindings.Add(MoveLeft);
      
-        Action MoveDown = new Action("Down", KeyCode.S);
+        Action MoveDown = new Action("Down", KeyCode.DownArrow);
         KeyBindings.Add(MoveDown);
       
-        Action MoveRight = new Action("Right", KeyCode.D);
+        Action MoveRight = new Action("Right", KeyCode.RightArrow);
         KeyBindings.Add(MoveRight);
      
         Action Attack = new Action("Attack", KeyCode.Mouse0);      
@@ -147,8 +148,8 @@ public class InputManager : MonoBehaviour {
         Action Interact = new Action("Interact", KeyCode.E);
         KeyBindings.Add(Interact);
       
-        Action Inventory = new Action("Inventory", KeyCode.I);
-        KeyBindings.Add(Inventory);   
+      /*  Action Inventory = new Action("Inventory", KeyCode.I);
+        KeyBindings.Add(Inventory);   */
     }
 
     public void RefreshDisplayedKeyBindings()

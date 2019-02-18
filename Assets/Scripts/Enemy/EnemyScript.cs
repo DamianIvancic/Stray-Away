@@ -3,80 +3,205 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyScript : MonoBehaviour {
-    
-    public float Speed = 5;
+
+
+    public float MaxSpeed = 5;
+    public float Accel = 2;
     public int Health = 2;
-    public bool Stunned = false;
-    public bool IsDead = false;
 
-    public Transform Player;
+    public BoxCollider2D Collider;
+    public AudioSource DamagedSound;
 
-    public float InvulTimer = 1;
-    public float InvulMax = 1;
+    public delegate void OnDeath(GameObject dead);
+    public static OnDeath OnDeathCallback;
 
-    private Animator _anim;
+    private Transform _player;
+    private PlayerController _playerController;
+
     private Transform _transform;
+    private Animator _anim;
+    private AudioSource _monsterSound;
 
-    private Vector3 _distance;
+    private float _invulTimer = 1;
+    private float _invulPeriod = 1;
 
-    private AudioSource MonsterSound;
+    private Vector2 _direction;
+    private Vector2 _velocity;
+    private Vector2 _initialPos;
 
-    private void Start()
-    {
-        _anim = GetComponentInChildren<Animator>();
+    [HideInInspector]
+    public bool _stunned = false;
+    [HideInInspector]
+    public bool _dead = false;
+
+ 
+    private Vector2 Position;
+    private Vector2 Target;
+    private Vector2 DirectionA;
+    bool rayhit = false;
+    bool adjusted = false;
+  
+
+    void Start()
+    {     
+        _velocity = Vector2.zero;
+
         _transform = transform;
-        MonsterSound = GetComponent<AudioSource>();
+        _anim = GetComponentInChildren<Animator>();  
+        _monsterSound = GetComponent<AudioSource>();
+
+        _initialPos = transform.position;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+
+    void Update()
     {
-        if(collision.tag == "Player")
+        if (GameManager._GM._gameState == GameManager.GameState.Playing)
         {
-            Player = collision.transform;
-            MonsterSound.Play();
-        }
-    }
+            _invulTimer += Time.deltaTime;
 
-    // Update is called once per frame
-    void Update ()
-    {
-
-        InvulTimer += Time.deltaTime;
-
-
-        if (Player && !IsDead && !Stunned)
-        {
-            if (Vector3.Distance(Player.position, transform.position) > 1.2f || Vector3.Distance(Player.position, transform.position) < -1.2f)
+            if (_velocity.magnitude > 0f)
             {
+                Vector2 Movement = _velocity * Time.deltaTime;
+                _transform.Translate(Movement, Space.World);
 
-                float movingAngle = Vector3.SignedAngle(Player.position - transform.position, Vector3.right, Vector3.forward);
+                Vector3 TargetPos = _transform.position + (Vector3)Movement;
+                float movingAngle = Vector3.SignedAngle(TargetPos - _transform.position, Vector3.right, Vector3.forward);
                 _anim.SetFloat("MovingAngle", movingAngle);
                 _anim.SetBool("IsWalking", true);
-
-                MoveToward(Player.position);
             }
+            else
+                _anim.SetBool("IsWalking", false);
+
+            if (!_dead && !_stunned)
+            {
+                if (_player && (Vector2.Distance(_player.position, _transform.position) > 1.2f || Vector2.Distance(_player.position, _transform.position) < -1.2f))
+                    Seek(_player.position);
+                else
+                    Seek(_initialPos);
+            }
+            else
+                _velocity = Vector2.zero;
+        }
+        else
+        {
+            _velocity = Vector2.zero;
+            _anim.SetBool("IsWalking", false);
         }
     }
 
-    public void MoveToward(Vector2 target)
-    {
-        float step = Speed * Time.deltaTime;
 
-        // move sprite towards the target location
-        transform.position = Vector2.MoveTowards(transform.position, target, step);
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.tag == "Player")
+        {
+            _player = collider.transform;
+            _playerController = collider.gameObject.GetComponent<PlayerController>();
+            _monsterSound.Play();
+        }
     }
 
+
+  /*  void AvoidWall()
+    {
+        float RaycastLength = 1f;
+      
+        Position = transform.position;
+     
+        RaycastHit2D hit; 
+        hit = Physics2D.Raycast(Position + _velocity.normalized * 2f, _velocity.normalized, RaycastLength);
+        if (hit.collider != null)
+        {
+
+            if (hit.collider != lastHit)
+                adjusted = false;
+
+            if (adjusted == false)
+            {
+
+                lastHit = hit.collider;
+
+                Sphere = hit.point;
+
+                Vector2 ObjectScale = hit.collider.gameObject.transform.localScale;
+
+                Position = transform.position;
+                Vector2 PlayerPos = _player.position;
+
+                Target = Position + (PlayerPos - Position) / 2;
+                DirectionA = Target - (Vector2)hit.collider.gameObject.transform.position;
+                Target = (Vector2)hit.collider.gameObject.transform.position + DirectionA * 2;
+                Vector2 CurrentMovement = hit.collider.gameObject.transform.position - transform.position;
+                Vector2 MoveToTarget = Target - (Vector2)transform.position;
+
+                Debug.Log("Time1" + Time.deltaTime);
+
+                if (Vector2.Angle(MoveToTarget, CurrentMovement) < 5f)
+                {
+                    adjusted = true;
+                    Debug.Log("Time2" + Time.deltaTime);
+                    Debug.Log("Adjustment");
+                    Vector2 Adjustment = Target - (Vector2)transform.position;
+                    Adjustment = Quaternion.Euler(0, 0, 90) * Adjustment;
+                    float root = Mathf.Sqrt(Adjustment.magnitude);
+                    Target = Target + Adjustment;//root;
+                }
+
+                rayhit = true;
+            }
+        }
+
+        if(rayhit)
+        {       
+            Seek(Target);
+            float root = Mathf.Sqrt(DirectionA.magnitude);
+            if ((Target - (Vector2)transform.position).magnitude <DirectionA.magnitude* root)
+            {
+                rayhit = false;
+                adjusted = false;
+            }
+        }
+    }*/
+
+    void Seek(Vector2 targetPos)
+    {     
+        _direction = targetPos - (Vector2)_transform.position;
+        float distance = _direction.magnitude;
+
+        if (distance > 0.5f)
+        {
+            _direction.Normalize();
+
+            _velocity += _direction * Accel;
+
+            if (_velocity.magnitude > MaxSpeed)
+            {
+                _velocity.Normalize();
+                _velocity *= MaxSpeed;
+            }
+        }
+        else
+            _velocity = Vector2.zero;
+    }
+
+  
+    public void Return()
+    {
+        _player = null;
+    }
+   
     public void TakeDamage(int damage)
     {
-        if (InvulTimer > InvulMax)
+        if (_invulTimer > _invulPeriod)
         {
-            InvulTimer = 0;
+            DamagedSound.Play();
 
-            Stunned = true;
+            _invulTimer = 0;
+
+            _stunned = true;
             _anim.SetBool("IsWalking", false);
 
             Invoke("UnStun", 1);
-
 
             Health -= damage;
             if (Health <= 0)
@@ -88,18 +213,21 @@ public class EnemyScript : MonoBehaviour {
 
     public void UnStun()
     {
-        Stunned = false;
+        _stunned = false;
         _anim.SetBool("IsWalking", true);
     }
 
     public void Death()
     {
-        _anim.SetTrigger("Death");
-        IsDead = true;
-        Destroy(gameObject, 5);
-    }
+        _dead = true;
 
-    
+        Collider.enabled = false;
+        _anim.SetTrigger("Death");
+      
+        OnDeathCallback.Invoke(gameObject);
+        Destroy(gameObject, 2.5f);
+    }
+  
     public void PrintDamage(int damage)
     {
         Debug.Log("I was hit for: " + damage + " Damage");

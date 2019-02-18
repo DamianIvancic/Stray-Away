@@ -7,7 +7,8 @@ TagManager:
   - Enemy
   - Damageable
   - Interactable
-  - PowerCell
+  - SiloTrigger
+  - MainAudio
   layers:
   - Default
   - TransparentFX

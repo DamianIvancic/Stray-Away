@@ -45,7 +45,7 @@ public class DestroyCutscene : MonoBehaviour
                         SingleScene("", Sprites[4]);
                         break;
                     case 5:
-                        TextScroller.ScrollText("");
+                        TextScroller.DisplayText("");
                         FadeToWhite.gameObject.SetActive(true);
                         FadeToWhite.canvasRenderer.SetAlpha(0.01f);
                         FadeToWhite.CrossFadeAlpha(1.0f, 2.0f, false);
@@ -63,7 +63,7 @@ public class DestroyCutscene : MonoBehaviour
                 {
                     CutsceneImage.sprite = null;
                     CutsceneImage.gameObject.SetActive(false);
-                    TextScroller.ScrollText("");
+                    TextScroller.DisplayText("");
                     Destroy(gameObject);
                 }
             }
@@ -74,7 +74,7 @@ public class DestroyCutscene : MonoBehaviour
     private void SingleScene(string text, Sprite sprite)
     {
         CutsceneImage.sprite = sprite;
-        TextScroller.ScrollText(text);
+        TextScroller.DisplayText(text);
     }
 
     public void ActivateFirstScene()
