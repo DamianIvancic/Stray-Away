@@ -8,6 +8,7 @@ public class ItemPickup : Interactable
     public Item item;
     public Image LoadingBar;
 
+
     public delegate void OnItemPickedUp(Item item);
     public static OnItemPickedUp OnItemPickedUpCallback; // an event which signals an item has been picked up
                                                          //anything that acts upon an item being picked up can be a listener 
@@ -23,7 +24,7 @@ public class ItemPickup : Interactable
         {
             LoadingBar.gameObject.SetActive(false);
 
-            foreach (InputManager.Action action in GameManager._GM.InputManager.KeyBindings)
+            foreach (InputManager.Action action in InputManager.Instance.KeyBindings)
             {
                 if (action.Name == "Interact")
                     _interactKeyCode = action.KeyCode;
@@ -75,7 +76,7 @@ public class ItemPickup : Interactable
 
         _loading = false;
 
-        if (GameManager._GM.Inventory.Add(item))
+        if (InventoryManager.Instance.Inventory.Add(item))
         {
             OnItemPickedUpCallback.Invoke(item);
             Destroy(gameObject);

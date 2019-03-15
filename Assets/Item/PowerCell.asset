@@ -11,5 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93a1c3c26a7f35a4fbab20804ad7c089, type: 3}
   m_Name: PowerCell
   m_EditorClassIdentifier: 
+  Icon: {fileID: 21300000, guid: 51ffe8ef07c3ddf4fa0d9b92a6e14795, type: 3}
   ItemName: PowerCell
-  icon: {fileID: 21300000, guid: 51ffe8ef07c3ddf4fa0d9b92a6e14795, type: 3}
+  ItemValue: 0
+  ItemDescription: An object of highly condensed energy, used to power up remnants
+    of ancient technology.

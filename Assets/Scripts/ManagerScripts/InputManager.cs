@@ -12,6 +12,8 @@ public class InputManager : MonoBehaviour {
 
     public List<Text> Keys;
     public List<Action> KeyBindings;
+
+    public static InputManager Instance;
     
     [System.Serializable]
     public class Action
@@ -24,54 +26,60 @@ public class InputManager : MonoBehaviour {
 
         public void ClearCallBacks()
         {
-            ActionCallBack = null;
-            StopActionCallBack = null;
+            ActionCallback = null;
+            StopCallback = null;
         }
 
         public string Name;
         public KeyCode KeyCode;
        
         public delegate void OnActionRegistered();
-        public OnActionRegistered ActionCallBack;
-        public OnActionRegistered StopActionCallBack;
+        public OnActionRegistered ActionCallback;
+        public OnActionRegistered StopCallback;
     }
 
     private GameObject CurrentKey;
 
-	void Start ()
+    void Start() //either sets default keybindings or loads existing ones from a file using the SLSManager if such a file exists
     {
-    
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
             string path = Application.persistentDataPath + "/Settings.dat";
 
             if (File.Exists(path))
-                KeyBindings = GameManager._GM.SaveLoadSystem.Settings.KeyBindings;
+                KeyBindings = SLSManager.Instance.Settings.KeyBindings;
             else
             {
                 SetDefaultBindings();
-                GameManager._GM.InitializeSettings();
+                SLSManager.Instance.SaveSettings();
             }
 
             RefreshDisplayedKeyBindings();
-         
+        }
+        else
+            Destroy(gameObject);
     }
 
     void Update()
     {
       
-        if (GameManager._GM._gameState == GameManager.GameState.Playing)
-        {
+        if (GameManager.GM.gameState == GameManager.GameState.Playing)
+        {    
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
-    
+        
             foreach (Action Binding in KeyBindings)
             {
-                if (Input.GetKeyDown(Binding.KeyCode) && Binding.ActionCallBack != null)
+                if (Input.GetKeyDown(Binding.KeyCode) && Binding.ActionCallback != null)
                 {
-                    Binding.ActionCallBack.Invoke();             
+                    Binding.ActionCallback.Invoke();             
                 }
 
-                if (Input.GetKeyUp(Binding.KeyCode) && Binding.StopActionCallBack != null)
-                    Binding.StopActionCallBack.Invoke();
+                if (Input.GetKeyUp(Binding.KeyCode) && Binding.StopCallback != null)
+                    Binding.StopCallback.Invoke();
             }
         }
     }
@@ -118,10 +126,10 @@ public class InputManager : MonoBehaviour {
 
                 CurrentKey = null;
 
-                GameManager._GM.InitializeSettings();
+                SLSManager.Instance.SaveSettings();
 
-                if(GameManager._GM.Player != null)
-                    GameManager._GM.Player.RegisterCallbacks();            
+                if(GameManager.GM.Player != null)
+                    RegisterCallbacks();            
             }
         }
     }
@@ -148,8 +156,8 @@ public class InputManager : MonoBehaviour {
         Action Interact = new Action("Interact", KeyCode.E);
         KeyBindings.Add(Interact);
       
-      /*  Action Inventory = new Action("Inventory", KeyCode.I);
-        KeyBindings.Add(Inventory);   */
+        Action Inventory = new Action("Inventory", KeyCode.I);
+        KeyBindings.Add(Inventory);
     }
 
     public void RefreshDisplayedKeyBindings()
@@ -163,5 +171,42 @@ public class InputManager : MonoBehaviour {
     public void ChangeKey(GameObject clicked) //this is the callback to the OnClickEvent of the Buttons. The gameObject clicked is the Button itself
     {                                                //this is just used to store the button clicked into a variable inside the script
         CurrentKey = clicked;
+    }
+
+    public void RegisterCallbacks()
+    {
+        List<Action> keyBindings = KeyBindings;
+
+        foreach (Action action in keyBindings)
+        {
+            switch (action.Name)
+            {
+                case ("Up"):
+                    action.ActionCallback += GameManager.GM.Player.MoveUp;
+                    action.StopCallback += GameManager.GM.Player.StopMovingVertical;
+                    break;
+                case ("Left"):
+                    action.ActionCallback += GameManager.GM.Player.MoveLeft;
+                    action.StopCallback += GameManager.GM.Player.StopMovingHorizontal;
+                    break;
+                case ("Down"):
+                    action.ActionCallback += GameManager.GM.Player.MoveDown;
+                    action.StopCallback += GameManager.GM.Player.StopMovingVertical;
+                    break;
+                case ("Right"):
+                    action.ActionCallback += GameManager.GM.Player.MoveRight;
+                    action.StopCallback += GameManager.GM.Player.StopMovingHorizontal;
+                    break;
+                case ("Attack"):
+                    action.ActionCallback += GameManager.GM.Player.Swing;
+                    break;
+                case ("Interact"):
+                    action.ActionCallback += GameManager.GM.Player.Interact;
+                    break;
+                case ("Inventory"):
+                    action.ActionCallback += InventoryManager.Instance.ToggleDisplay;
+                    break;
+            }
+        }
     }
 }

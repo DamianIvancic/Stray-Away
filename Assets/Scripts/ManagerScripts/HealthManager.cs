@@ -14,27 +14,35 @@ public class HealthManager : MonoBehaviour {
     public Sprite FullHeart;
     public Sprite EmptyHeart;
 
+    public static HealthManager Instance;
+
     private int _currentHealth;
     private List<Image> _HPHearts;
     private AudioSource _damageSound;
 
     public delegate void OnDamageTaken();
     public static OnDamageTaken OnDamageTakenCallback;
-
-    void Start ()
+ 
+    void Awake ()
     {
-        _currentHealth = _maxHealth;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
 
-        _HPHearts = new List<Image>();
+            _damageSound = GetComponent<AudioSource>();
 
-        _damageSound = GetComponent<AudioSource>();
+            _currentHealth = _maxHealth;
+            _HPHearts = new List<Image>();       
+            for (int i = 0; i < _maxHealth; i++)
+            {
+                _HPHearts.Add(Instantiate(HPHeart, gameObject.transform));
+            }
 
-        for (int i = 0; i <_maxHealth; i++)
-        {        
-            _HPHearts.Add(Instantiate(HPHeart, gameObject.transform));
+            SceneManager.sceneLoaded += OnSceneLoadedListener;
         }
-
-        SceneManager.sceneLoaded += OnSceneLoadedListener;
+        else
+            Destroy(gameObject);     
     }
 
     void Update()
@@ -49,7 +57,7 @@ public class HealthManager : MonoBehaviour {
 
     public void TakeDamage(int damage=1)
     {
-        if(GameManager._GM._gameState == GameManager.GameState.Playing)
+        if(GameManager.GM.gameState == GameManager.GameState.Playing)
         {
             if (InvulTimer > InvulMax)
             {
@@ -61,7 +69,7 @@ public class HealthManager : MonoBehaviour {
 
                 if (_currentHealth <= 0)
                 {
-                    GameManager._GM.SetState(GameManager.GameState.GameOver);                 
+                    GameManager.GM.SetState(GameManager.GameState.GameOver);                 
                 }
             }
         }      

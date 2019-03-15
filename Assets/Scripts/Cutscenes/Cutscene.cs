@@ -14,7 +14,12 @@ public class Cutscene : MonoBehaviour
         public string DisplayText;      
         public List<Sprite> Images;
     }
-   
+
+    public List<SubScene> SubScenes;
+
+    private int _subSceneIdx = 0;
+    private bool _isEndingCutscene = false;
+
     #region TextScroller
     public Text Text;
     public float delay = 0.05f;
@@ -24,14 +29,9 @@ public class Cutscene : MonoBehaviour
     private string _textSegment;
     #endregion
 
-    public List<SubScene> SubScenes;
-    public delegate void OnCutsceneFinished(string name);
+    public delegate void OnCutsceneFinished(string cutsceneName);
     public static OnCutsceneFinished OnCutsceneFinishedCallback;
-
-    private int _subSceneIdx = 0;
-    private bool _isEndingCutscene = false;
-
-
+   
     void Start()
     {     
         if (Name == "EscapeCutscene" || Name == "DefendCutscene")

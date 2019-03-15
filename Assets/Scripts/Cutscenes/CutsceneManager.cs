@@ -3,54 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CutsceneManager : Interactable
+public class CutsceneManager : MonoBehaviour
 {
     public List<Cutscene> Cutscenes;
 
+    public static CutsceneManager Instance;
 
-    void Start()
+    void Awake()
     {
-        if (GameManager._GM.CutsceneManager == this)
-        {        
-            Cutscene.OnCutsceneFinishedCallback += EndingCutsceneCallback;
-
+        if (Instance == null)
+        {
+            Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            Cutscene.OnCutsceneFinishedCallback += CutsceneEndingCallback;
         }
         else
             Destroy(gameObject);      
     }
 
-    void EndingCutsceneCallback(string cutsceneName)
+    public void CutsceneEndingCallback(string cutsceneName)
     {
+        Debug.Log(cutsceneName);
+
         if (cutsceneName == "EscapeCutscene" || cutsceneName == "DefendCutscene")
-            GameManager._GM.LoadScene("EndingScreen");
+            GameManager.GM.LoadScene("EndingScreen");
         else
-        {
-            if (GameManager._GM.MainAudio != null)
-                GameManager._GM.MainAudio.enabled = true;
+        {         
+            if (GameManager.GM.MainAudio != null)
+                GameManager.GM.MainAudio.enabled = true;
 
-            if (GameManager._GM.UI.PowerCellUI != null && GameManager._GM.Inventory.Contains("PowerCell"))
-                GameManager._GM.UI.PowerCellUI.gameObject.SetActive(true);
-
-            GameManager._GM.StartGame();
+            GameManager.GM.StartGame();
         }
     }
 
     public void PlayCutscene(int cutsceneIdx)
     {
-        GameManager._GM._gameState = GameManager.GameState.Cutscene;
+        GameManager.GM.gameState = GameManager.GameState.Cutscene;
 
-        if(GameManager._GM.MainAudio != null)
-            GameManager._GM.MainAudio.enabled = false;
+        if(GameManager.GM.MainAudio != null)
+            GameManager.GM.MainAudio.enabled = false;
        
-        if (GameManager._GM.UI.UIHearts != null)
-            GameManager._GM.UI.UIHearts.SetActive(false);
-
-        if (GameManager._GM.UI.PowerCellUI != null)
-            GameManager._GM.UI.PowerCellUI.gameObject.SetActive(false);
-
-        if (GameManager._GM.UI.MeteorTimer._started)
-            GameManager._GM.UI.MeteorTimer.gameObject.SetActive(false);
+        if (UIManager.Instance.HealthDisplay != null)
+            UIManager.Instance.HealthDisplay.SetActive(false);
 
         if (Cutscenes != null && cutsceneIdx < Cutscenes.Count)
         {

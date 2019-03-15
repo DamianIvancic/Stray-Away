@@ -6,30 +6,30 @@ public class EnemyZone : MonoBehaviour {
 
 
     private BoxCollider2D _returnTrigger;
-    private List<EnemyScript> _enemies;
+    private List<Crawler> _enemies;
 
+ 
     void Start()
     {
         _returnTrigger = GetComponent<BoxCollider2D>();
-        _enemies = new List<EnemyScript>(GetComponentsInChildren<EnemyScript>());
+        _enemies = new List<Crawler>(GetComponentsInChildren<Crawler>());
 
-        EnemyScript.OnDeathCallback += OnDeathListener;
     }
 
     void OnDestroy()
     {
-        EnemyScript.OnDeathCallback -= OnDeathListener;
+        //EnemyScript.OnDeath.gameObjectCallback -= OnDeathListener;
     }
 	
     void OnTriggerEnter2D(Collider2D collider)
     {
         if (collider.tag == "Enemy")
         {
-            foreach (EnemyScript enemy in _enemies)
+            foreach (Crawler enemy in _enemies)
             {
                 if (enemy.gameObject == collider.gameObject)
                 {
-                    enemy.Return();
+                    //enemy.Return();
                 }
             }
         }
@@ -37,7 +37,7 @@ public class EnemyZone : MonoBehaviour {
 
     void OnDeathListener(GameObject died)
     {
-        foreach (EnemyScript enemy in _enemies)
+        foreach (Crawler enemy in _enemies)
         {
             if (enemy.gameObject == died)
             {
@@ -45,5 +45,10 @@ public class EnemyZone : MonoBehaviour {
                 break;
             }
         }
+    }
+
+    public void TestListener()
+    {
+        Debug.Log("testListener");
     }
 }
