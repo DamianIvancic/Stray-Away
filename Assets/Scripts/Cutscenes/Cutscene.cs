@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Cutscene : MonoBehaviour
 {
     public string Name;
-    public Image CutsceneImage;
+    public Image CutsceneImage; //the image the sprite is displayed to
 
     [System.Serializable]
     public class SubScene

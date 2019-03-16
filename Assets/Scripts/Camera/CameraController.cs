@@ -20,7 +20,6 @@ public class CameraController : MonoBehaviour {
         _camTransform = gameObject.transform;
         _camera = GetComponent<Camera>();
 
-        ZoomEnabled = true;
 	}
 
     void Update()
@@ -37,4 +36,5 @@ public class CameraController : MonoBehaviour {
         else
             _camera.orthographicSize = 10;
     }  
+
 }

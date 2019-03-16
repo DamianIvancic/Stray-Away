@@ -19,12 +19,16 @@ public class PlayerController : MonoBehaviour {
     private Animator _anim;
     [HideInInspector]
     public Rigidbody2D _rb;
-    private AudioSource _swingSound;
+    [HideInInspector]
+    public AudioSource _swingSound;
 
     private float _movementH;
     private float _movementV;
     private Vector2 _movement;
+
     private bool _isSwinging;
+    private float _swingTimer = 0f;
+    private float _swingCooldown = 0.5f;
 
     void Start()
     {     
@@ -48,6 +52,7 @@ public class PlayerController : MonoBehaviour {
                 _rb.isKinematic = false;
             }
 
+            _swingTimer += Time.deltaTime;
         }
         else if(GameManager.GM.gameState == GameManager.GameState.Paused || GameManager.GM.gameState == GameManager.GameState.GameOver)
         {
@@ -180,8 +185,11 @@ public class PlayerController : MonoBehaviour {
 
     public void Swing()
     {
-        _swingSound.Play();
-        _anim.SetTrigger("IsSwinging");
+        if (_swingTimer > _swingCooldown)
+        {
+            _anim.SetTrigger("IsSwinging");
+            _swingTimer = 0f;
+        }
     }
 
     void OnDrawGizmosSelected()

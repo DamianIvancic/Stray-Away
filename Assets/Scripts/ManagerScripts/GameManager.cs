@@ -92,17 +92,16 @@ public class GameManager : MonoBehaviour
                 gameState = GameState.Menu;
                 break;
             case (1):
-                gameState = GameState.Finished;
+                MainCam = FindObjectOfType<CameraController>();
+                Player = FindObjectOfType<PlayerController>();
+                StartGame();           
                 break;
             case (2):
-                MainCam = FindObjectOfType<CameraController>();             
-                Player = FindObjectOfType<PlayerController>();
-                StartGame();
+                gameState = GameState.Finished;
                 break;
             default:
                 MainCam = FindObjectOfType<CameraController>();
                 Player = FindObjectOfType<PlayerController>();
-                MainAudio = GameObject.FindWithTag("MainAudio").GetComponent<AudioSource>();
                 StartGame();
                 break;
         }
