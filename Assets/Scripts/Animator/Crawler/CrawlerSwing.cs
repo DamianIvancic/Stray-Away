@@ -12,7 +12,7 @@ public class CrawlerSwing : StateMachineBehaviour {
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         CrawlerScript = animator.gameObject.GetComponentInChildren<Crawler>();
-        CrawlerScript._swinging = true;
+        CrawlerScript.swinging = true;
         ready = true;
     }
 
@@ -21,7 +21,7 @@ public class CrawlerSwing : StateMachineBehaviour {
     {
         if (stateInfo.normalizedTime > 0.9f && ready == true)
         {
-            if (CrawlerScript._playerInRange)
+            if (CrawlerScript.playerInRange)
             {
                 HealthManager.Instance.TakeDamage(0);
                 HealthManager.OnDamageTakenCallback.Invoke();
@@ -33,9 +33,9 @@ public class CrawlerSwing : StateMachineBehaviour {
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        CrawlerScript._swinging = false;
-        CrawlerScript.advancePoint = null;
-        CrawlerScript._currentState = Crawler.State.Retreat;
+        CrawlerScript.swinging = false;
+        CrawlerScript.destination = null;
+        CrawlerScript.SetState(Crawler.State.Retreat);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here

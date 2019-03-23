@@ -16,11 +16,11 @@ public class PlayerController : MonoBehaviour {
     [HideInInspector]
     public Interactable interactableScript;
 
+    [HideInInspector]
+    public Rigidbody2D RB;
+    [HideInInspector]
+    public AudioSource swingSound;
     private Animator _anim;
-    [HideInInspector]
-    public Rigidbody2D _rb;
-    [HideInInspector]
-    public AudioSource _swingSound;
 
     private float _movementH;
     private float _movementV;
@@ -31,10 +31,10 @@ public class PlayerController : MonoBehaviour {
     private float _swingCooldown = 0.5f;
 
     void Start()
-    {     
+    {        
+        RB = GetComponent<Rigidbody2D>();
+        swingSound = GetComponent<AudioSource>();
         _anim = GetComponentInChildren<Animator>();
-        _rb = GetComponent<Rigidbody2D>();
-        _swingSound = GetComponent<AudioSource>();
 
         InputManager.Instance.RegisterCallbacks();    
     }
@@ -47,16 +47,11 @@ public class PlayerController : MonoBehaviour {
             UpdateMovement();
             UpdateAnimator();
 
-            if (_rb.isKinematic == true)
-            {
-                _rb.isKinematic = false;
-            }
-
             _swingTimer += Time.deltaTime;
         }
         else if(GameManager.GM.gameState == GameManager.GameState.Paused || GameManager.GM.gameState == GameManager.GameState.GameOver)
         {
-            _rb.velocity = Vector2.zero;
+            RB.velocity = Vector2.zero;
             _anim.SetBool("IsMoving", false);
         }
     }
@@ -66,12 +61,17 @@ public class PlayerController : MonoBehaviour {
         _movement = new Vector2(_movementH, _movementV);
         _movement.Normalize();
 
-        _rb.velocity = _movement * Speed;
+        RB.velocity = _movement * Speed;
+
+        if (RB.velocity.magnitude == 0f)
+            RB.isKinematic = true; //prevents enemies from pushing the player
+        else
+            RB.isKinematic = false;
     }
 
     void UpdateAnimator()
     {
-        if(_rb.velocity.magnitude > 0)
+        if(RB.velocity.magnitude > 0)
             _anim.SetBool("IsMoving", true);
         else
             _anim.SetBool("IsMoving", false);
@@ -83,34 +83,34 @@ public class PlayerController : MonoBehaviour {
     private void SetOrientation()
     {
         
-        if(_rb.velocity.x < 0)
+        if(RB.velocity.x < 0)
         {
             _anim.SetBool("Right", false);
             _anim.SetBool("Left", true);
         }
-        else if(_rb.velocity.x == 0)
+        else if(RB.velocity.x == 0)
         {
             _anim.SetBool("Right", false);
             _anim.SetBool("Left", false);
         }
-        else if(_rb.velocity.x > 0)
+        else if(RB.velocity.x > 0)
         {
             _anim.SetBool("Right", true);
             _anim.SetBool("Left", false);
         }
 
 
-        if(_rb.velocity.y <0)
+        if(RB.velocity.y <0)
         {
             _anim.SetBool("Up", false);
             _anim.SetBool("Down", true);
         }
-        else if(_rb.velocity.y == 0)
+        else if(RB.velocity.y == 0)
         {
             _anim.SetBool("Up", false);
             _anim.SetBool("Down", false);
         }
-        else if(_rb.velocity.y > 0)
+        else if(RB.velocity.y > 0)
         {
             _anim.SetBool("Up", true);
             _anim.SetBool("Down", false);
@@ -169,7 +169,7 @@ public class PlayerController : MonoBehaviour {
         _movement = Vector2.zero;
         _movementH = 0;
         _movementV = 0;
-        _rb.velocity = _movement;
+        RB.velocity = _movement;
 
         UpdateAnimator();
     }
