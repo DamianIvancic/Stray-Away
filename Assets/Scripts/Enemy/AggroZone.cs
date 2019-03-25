@@ -22,7 +22,7 @@ public class AggroZone : MonoBehaviour
     {
         if(trigger.tag == "Player")
         {
-            _owner.SetAggro();
+            _owner.SetAggro(true);
         }
     }
 
@@ -30,7 +30,7 @@ public class AggroZone : MonoBehaviour
     {
         if (trigger.tag == "Player")
         {
-            _owner.ResetAggro();
+            _owner.SetAggro(false);
         }
     }
 }

@@ -4,9 +4,5 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    public abstract void UpdateAI();
-    public abstract void UpdateMovement();
-    public abstract void UpdateAnimator();
-    public abstract void SetAggro();
-    public abstract void ResetAggro();
+    public abstract void SetAggro(bool state);
 }
