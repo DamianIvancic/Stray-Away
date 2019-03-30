@@ -66,53 +66,6 @@ public class Crawler : Enemy
         }
     }
 
-    /*public override void UpdateMovement()
-    {
-        if (stateMachine._currentState == CrawlerRetreat.Instance)
-            _speed = 2;
-        else
-            _speed = 5;
-
-        if (destination != null && ((Vector2)destination - (Vector2)transform.position).magnitude >= 0.5f && !swinging)
-        {
-            velocity = ((Vector2)destination - (Vector2)transform.position).normalized * _speed * Time.deltaTime;
-            transform.position += (Vector3)velocity;
-        }
-        else
-            velocity = Vector2.zero;
-    }
-
-    public override void UpdateAnimator()
-    {
-        movingAngle = float.NaN; //basically use NaN as if it were null
-
-        if (velocity.magnitude > 0f)
-        {
-            movingAngle = Vector2.SignedAngle(velocity, Vector2.right);
-       
-            _anim.SetBool("IsWalking", true);
-        }
-        else
-        {
-            if (destination != null)      
-                movingAngle = Vector2.SignedAngle((Vector2)destination - (Vector2)transform.position, Vector2.right);              
-            
-            _anim.SetBool("IsWalking", false);
-        }
-
-        if(movingAngle != float.NaN)
-        {    
-            if (stateMachine._currentState == CrawlerRetreat.Instance)
-            {
-                movingAngle += 180; //makes it look like it's moving backwards
-                if (movingAngle > 180)
-                    movingAngle -= 360;
-            }
-
-            _anim.SetFloat("MovingAngle", movingAngle);
-        }
-    }*/
-
     public override void SetAggro(bool state)
     {
          aggro = state;
