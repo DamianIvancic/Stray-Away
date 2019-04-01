@@ -31,7 +31,7 @@ public class FireFlyIncreasing : State<FireFly>
 
     public override void EnterState(FireFly owner)
     {
-        Debug.Log("Enter state " + this);
+    
 
         owner.destination = owner.startingPos + (Random.insideUnitCircle * 3);
         owner.movementDirection = (Vector2)owner.destination - (Vector2)owner.transform.position;
@@ -67,6 +67,6 @@ public class FireFlyIncreasing : State<FireFly>
 
     public override void ExitState(FireFly owner)
     {
-        Debug.Log("Exit state " + this);
+
     }
 }
