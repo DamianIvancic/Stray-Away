@@ -42,6 +42,8 @@ public class InputManager : MonoBehaviour {
 
     void Start() //either sets default keybindings or loads existing ones from a file using the SLSManager if such a file exists
     {
+        Debug.Log(Application.persistentDataPath + "/Settings.dat");
+
         if (Instance == null)
         {
             Instance = this;

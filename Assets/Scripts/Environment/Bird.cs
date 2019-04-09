@@ -34,15 +34,18 @@ public class Bird : MonoBehaviour
 
 	void Update ()
     {
-        if(_currentState == State.Walk)
-        {     
+        if (_currentState == State.Walk)
+        {
             _destination = (Vector2)_transform.position + Random.insideUnitCircle * 3;
 
             if (_nav2D.CalculatePath((Vector2)_destination))
-                _nav2D.destination = (Vector2)_destination;      
+                _nav2D.destination = (Vector2)_destination;
         }
-        else if(_currentState == State.Fly)
+        else if (_currentState == State.Fly)
+        {
             _transform.Translate(_velocity * 10 * Time.deltaTime);
+            UpdateAnimator();
+        }
     }
 
     void UpdateAnimator()
@@ -50,9 +53,9 @@ public class Bird : MonoBehaviour
         Vector3 Scale = _transform.localScale;
 
         if (_velocity.x > 0)
-            Scale.x = 1.5f;
+            Scale.x = 1;
         else if (_velocity.x < 0)
-            Scale.x = -1.5f;
+            Scale.x = -1;
 
         _transform.localScale = Scale;
     }
