@@ -14,12 +14,13 @@ public class PlayerController : MonoBehaviour {
 
     public GameObject InteractSprite;
    
-    private Animator _anim;
-    [HideInInspector]
-    public Rigidbody2D _rb;
-    private AudioSource _swingSound;
     [HideInInspector]
     public Interactable interactableScript;
+    [HideInInspector]
+    public AudioSource swingSound;
+    private Animator _anim;
+    [HideInInspector]
+    public Rigidbody2D RB;
 
     private float _movementH;
     private float _movementV;
@@ -29,13 +30,13 @@ public class PlayerController : MonoBehaviour {
 
     private void Start()
     {
-        if (GameManager._GM.Player == null)
+        if (GameManager.GM.Player == null)
         {
-            GameManager._GM.Player = this;
+            GameManager.GM.Player = this;
 
             _anim = GetComponentInChildren<Animator>();
-            _rb = GetComponent<Rigidbody2D>();
-            _swingSound = GetComponent<AudioSource>();
+            RB = GetComponent<Rigidbody2D>();
+            swingSound = GetComponent<AudioSource>();
 
             _startingPos = new Vector2(87, 19);
 
@@ -53,14 +54,14 @@ public class PlayerController : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 
-        if (GameManager._GM._gameState == GameManager.GameState.Playing)
+        if (GameManager.GM.gameState == GameManager.GameState.Playing)
         {
             UpdateMovement();
             UpdateAnimator();
         }
-        else if(GameManager._GM._gameState == GameManager.GameState.Paused || GameManager._GM._gameState == GameManager.GameState.GameOver)
+        else if(GameManager.GM.gameState == GameManager.GameState.Paused || GameManager.GM.gameState == GameManager.GameState.GameOver)
         {
-            _rb.velocity = Vector2.zero;
+            RB.velocity = Vector2.zero;
             _anim.SetBool("IsMoving", false);
         }
     }
@@ -70,12 +71,17 @@ public class PlayerController : MonoBehaviour {
         _movement = new Vector2(_movementH, _movementV);
         _movement.Normalize();
 
-        _rb.velocity = _movement * Speed;
+        RB.velocity = _movement * Speed;
+
+        if (RB.velocity.magnitude == 0f)
+            RB.isKinematic = true; //prevents enemies from pushing the player
+        else
+            RB.isKinematic = false;
     }
 
     void UpdateAnimator()
     {
-        if(_rb.velocity.magnitude > 0)
+        if(RB.velocity.magnitude > 0)
             _anim.SetBool("IsMoving", true);
         else
             _anim.SetBool("IsMoving", false);
@@ -103,34 +109,34 @@ public class PlayerController : MonoBehaviour {
     private void SetOrientation()
     {
         
-        if(_rb.velocity.x < 0)
+        if(RB.velocity.x < 0)
         {
             _anim.SetBool("Right", false);
             _anim.SetBool("Left", true);
         }
-        else if(_rb.velocity.x == 0)
+        else if(RB.velocity.x == 0)
         {
             _anim.SetBool("Right", false);
             _anim.SetBool("Left", false);
         }
-        else if(_rb.velocity.x > 0)
+        else if(RB.velocity.x > 0)
         {
             _anim.SetBool("Right", true);
             _anim.SetBool("Left", false);
         }
 
 
-        if(_rb.velocity.y <0)
+        if(RB.velocity.y <0)
         {
             _anim.SetBool("Up", false);
             _anim.SetBool("Down", true);
         }
-        else if(_rb.velocity.y == 0)
+        else if(RB.velocity.y == 0)
         {
             _anim.SetBool("Up", false);
             _anim.SetBool("Down", false);
         }
-        else if(_rb.velocity.y > 0)
+        else if(RB.velocity.y > 0)
         {
             _anim.SetBool("Up", true);
             _anim.SetBool("Down", false);
@@ -144,8 +150,8 @@ public class PlayerController : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Damageable")     
-            collision.GetComponentInParent<EnemyScript>().TakeDamage(Damage);       
+          if (collision.tag == "Damageable")     
+              collision.GetComponentInParent<Enemy>().TakeDamage(Damage);       
     }
 
     #endregion -> all the  -> all the collision/trigger functions go here
@@ -189,7 +195,7 @@ public class PlayerController : MonoBehaviour {
         _movement = Vector2.zero;
         _movementH = 0;
         _movementV = 0;
-        _rb.velocity = _movement;
+        RB.velocity = _movement;
 
         UpdateAnimator();
     }
@@ -205,13 +211,12 @@ public class PlayerController : MonoBehaviour {
 
     public void Swing()
     {
-        _swingSound.Play();
         _anim.SetTrigger("IsSwinging");
     }
 
     public void Inventory() //dont make the keycode Space or it will produce errors with GUI buttons that remove items from the inventory since space = submit under Project->Input
     {
-        GameObject Inventory = GameManager._GM.Inventory.gameObject;
+        GameObject Inventory = GameManager.GM.Inventory.gameObject;
         Inventory.SetActive(!Inventory.activeSelf);
 
         Debug.Log("PlayerController.Inventory()");
@@ -219,7 +224,7 @@ public class PlayerController : MonoBehaviour {
 
     public void RegisterCallbacks()
     {
-        List<InputManager.Action> KeyBindings = GameManager._GM.InputManager.KeyBindings;
+        List<InputManager.Action> KeyBindings = GameManager.GM.InputManager.KeyBindings;
 
         foreach (InputManager.Action action in KeyBindings)
         {

@@ -9,13 +9,13 @@ public class WorldTree : Interactable {
 
     void Start()
     {
-        TextScroller = GameManager._GM.UI.DialogueBox.GetComponentInChildren<TextScroller>();
+        TextScroller = GameManager.GM.UI.DialogueBox.GetComponentInChildren<TextScroller>();
     }
 
 
     public override void DoOnInteract()
     {
         TextScroller.DisplayText("You're safe here - this is your home. You feel good and your HP is restored.");
-        GameManager._GM.HPManager.RestoreHP();
+        GameManager.GM.HPManager.RestoreHP();
     }
 }

@@ -23,7 +23,7 @@ public class ItemPickup : Interactable
         {
             LoadingBar.gameObject.SetActive(false);
 
-            foreach (InputManager.Action action in GameManager._GM.InputManager.KeyBindings)
+            foreach (InputManager.Action action in GameManager.GM.InputManager.KeyBindings)
             {
                 if (action.Name == "Interact")
                     _interactKeyCode = action.KeyCode;
@@ -75,7 +75,7 @@ public class ItemPickup : Interactable
 
         _loading = false;
 
-        if (GameManager._GM.Inventory.Add(item))
+        if (GameManager.GM.Inventory.Add(item))
         {
             OnItemPickedUpCallback.Invoke(item);
             Destroy(gameObject);

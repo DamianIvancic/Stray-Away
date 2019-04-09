@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Timer : MonoBehaviour {
 
+
+    [HideInInspector]
+    public bool started = false;
+
     private float _minutes;
     private float _seconds;
+    private float _timer = 0;
 
     private Text _display;
 
-    private float _timer = 0;
-    [HideInInspector]
-    public bool _started = false;
 
     public void Initialize()
     {
@@ -20,7 +23,7 @@ public class Timer : MonoBehaviour {
 
         _display = GetComponent<Text>();
 
-        int numCells = GameManager._GM.Inventory.GetCount("PowerCell");
+        int numCells = GameManager.GM.Inventory.GetCount("PowerCell");
 
         switch (numCells)
         {
@@ -37,16 +40,18 @@ public class Timer : MonoBehaviour {
 
         _seconds = 0;
 
-        _started = true;
+        started = true;
+
+        SceneManager.sceneLoaded += OnSceneLoadedListener;
     }
 	
 	void Update ()
     {
-        if(GameManager._GM._gameState == GameManager.GameState.Playing)
+        if(GameManager.GM.gameState == GameManager.GameState.Playing)
         {
             if (_minutes > 0 || _seconds > 0)
             {
-                if (_minutes > 0 && _seconds <= 0)
+                if (_minutes > 0 && _seconds < 0)
                 {
                     _minutes--;
                     _seconds = 59;
@@ -60,18 +65,21 @@ public class Timer : MonoBehaviour {
                     _seconds -= 1;
                 }
 
-                _display.text = _minutes + ":" + _seconds;
+                if(_seconds < 10)
+                    _display.text = _minutes + ":0" + _seconds;
+                else
+                    _display.text = _minutes + ":" + _seconds;
             }
             else
-            {
+            {          
                 _display.text = _minutes + ":" + _seconds;
-                GameManager._GM.SetState(GameManager.GameState.GameOver);
+                GameManager.GM.SetState(GameManager.GameState.GameOver);
             }
         }  
 	}
 
-    public void SetTimer(float minutes)
+    void OnSceneLoadedListener(Scene scene, LoadSceneMode mode)
     {
-        _minutes = minutes;
+        started = false;
     }
 }

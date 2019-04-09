@@ -11,7 +11,7 @@ public class SLSManager : MonoBehaviour
 
     void Start()
     {
-        if (GameManager._GM.SaveLoadSystem == this)
+        if (GameManager.GM.SaveLoadSystem == this)
         {
             string path = Application.persistentDataPath + "/Settings.dat";
 

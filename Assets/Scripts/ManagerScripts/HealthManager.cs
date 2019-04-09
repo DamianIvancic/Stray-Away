@@ -49,7 +49,7 @@ public class HealthManager : MonoBehaviour {
 
     public void TakeDamage(int damage=1)
     {
-        if(GameManager._GM._gameState == GameManager.GameState.Playing)
+        if(GameManager.GM.gameState == GameManager.GameState.Playing)
         {
             if (InvulTimer > InvulMax)
             {
@@ -61,7 +61,7 @@ public class HealthManager : MonoBehaviour {
 
                 if (_currentHealth <= 0)
                 {
-                    GameManager._GM.SetState(GameManager.GameState.GameOver);                 
+                    GameManager.GM.SetState(GameManager.GameState.GameOver);                 
                 }
             }
         }      

@@ -13,7 +13,7 @@ public class SiloGuard : Interactable {
 
     void Start()
     {
-        _dialogueText = GameManager._GM.UI.DialogueText;
+        _dialogueText = GameManager.GM.UI.DialogueText;
         _dialogue = new List<string>();
         _dialogue.Add("Patrolling the woods beats guarding this old silo any day. I doubt we'll ever get it back up and running anyway...");
 
@@ -32,14 +32,14 @@ public class SiloGuard : Interactable {
     #region callbacks
     void PowerCellListener(Item item)
     {
-        if (item.ItemName == "PowerCell" && GameManager._GM.Inventory.GetCount(item) == 1)
+        if (item.ItemName == "PowerCell" && GameManager.GM.Inventory.GetCount(item) == 1)
         {
             _dialogue.Clear();
             _dialogue.Add("Try putting that object you found into the silo's fusion core. The old technology has advanced safety measures - if it finds it too unstable it will just abort the process.");
           //  Silo._siloTrigger.enabled = true;
         }
 
-        if (item.ItemName == "PowerCell" && GameManager._GM.Inventory.GetCount(item) == 3)
+        if (item.ItemName == "PowerCell" && GameManager.GM.Inventory.GetCount(item) == 3)
         {
             if(_siloActivated)
             {
@@ -48,7 +48,7 @@ public class SiloGuard : Interactable {
             }       
         }
 
-        if (item.ItemName == "PowerCell" && GameManager._GM.Inventory.GetCount(item) == 6)
+        if (item.ItemName == "PowerCell" && GameManager.GM.Inventory.GetCount(item) == 6)
         {
             _dialogue.Clear();
             _dialogue.Add("You've got enough of those to power up the defense system. Way to go!");
@@ -61,12 +61,12 @@ public class SiloGuard : Interactable {
         {
             _siloActivated = true;
 
-            if (GameManager._GM.Inventory.GetCount("PowerCell") < 3)
+            if (GameManager.GM.Inventory.GetCount("PowerCell") < 3)
             {
                 _dialogue.Clear();
                 _dialogue.Add("If we had more of those energy cells our system could do something about the incoming threat... do you think there might be more out there?");
             }
-            else if (GameManager._GM.Inventory.GetCount("PowerCell") < 6)
+            else if (GameManager.GM.Inventory.GetCount("PowerCell") < 6)
             {
                 _dialogue.Clear();
                 _dialogue.Add("Did you try looking in the outer parts of the forest for more? With 6 cells we would re-activate our weapon.");

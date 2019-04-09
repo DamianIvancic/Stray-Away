@@ -16,7 +16,7 @@ public class EntranceGuard : Interactable
                                          // and then checked by the 2nd when turning the trigger off
     void Start()
     {
-        _dialogueText = GameManager._GM.UI.DialogueText;
+        _dialogueText = GameManager.GM.UI.DialogueText;
         InitializeDialogue();
 
 
@@ -52,7 +52,7 @@ public class EntranceGuard : Interactable
     void InitializeDialogue()
     {
         _dialogue = new List<string>();
-        _dialogue.Add("Report back to me if you find anything unusual near the village. When you're done with the patrol you can go wherever you want.");
+        _dialogue.Add("Report back to me if you find anything unusual near the village. When you're done with the patrol you can go wherever you want. Oh and if you get hurt just go to back to the village to fix yourself up.");
     }
 
     #region callbacks
@@ -60,13 +60,13 @@ public class EntranceGuard : Interactable
     {
         if (item.ItemName == "PowerCell")
         {
-            if(GameManager._GM.Inventory.GetCount(item) == 1)
+            if(GameManager.GM.Inventory.GetCount(item) == 1)
             {
                 _dialogue.Clear();
                 _dialogue.Add("That item you found's interesting for sure. Did you try talking to the silo guard about it? He knows a lot about these things - that's why he was chosen to guard the tech.");
             }
 
-            if (GameManager._GM.Inventory.GetCount(item) == 3)
+            if (GameManager.GM.Inventory.GetCount(item) == 3)
             {
                 if (_passCondition)
                     ReturnTrigger.enabled = false;
@@ -74,7 +74,7 @@ public class EntranceGuard : Interactable
                     _passCondition = true;
             }
 
-            if (GameManager._GM.Inventory.GetCount(item) == 6)
+            if (GameManager.GM.Inventory.GetCount(item) == 6)
             {
                 _dialogue.Clear();
                 _dialogue.Add("Looks like you've got all the cells you could possibly need. Hurry, get to the silo!");

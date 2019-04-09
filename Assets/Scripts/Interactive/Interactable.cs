@@ -12,19 +12,19 @@ public class Interactable : MonoBehaviour {
     {
         if (collider.tag == "Player")
         {          
-            GameManager._GM.Player.InteractSprite.SetActive(true);
-            GameManager._GM.Player.interactableScript = this;
+            GameManager.GM.Player.InteractSprite.SetActive(true);
+            GameManager.GM.Player.interactableScript = this;
         }
     }
 
     void OnTriggerStay2D(Collider2D collider)
     {
-        if(GameManager._GM._gameState == GameManager.GameState.Playing)
+        if(GameManager.GM.gameState == GameManager.GameState.Playing)
         {
             if (collider.tag == "Player")
             {
-                GameManager._GM.Player.InteractSprite.SetActive(true);
-                GameManager._GM.Player.interactableScript = this;
+                GameManager.GM.Player.InteractSprite.SetActive(true);
+                GameManager.GM.Player.interactableScript = this;
             }
         }    
     }
@@ -33,8 +33,8 @@ public class Interactable : MonoBehaviour {
     {
         if (collider.tag == "Player")
         {         
-            GameManager._GM.Player.InteractSprite.SetActive(false);
-            GameManager._GM.Player.interactableScript = null;
+            GameManager.GM.Player.InteractSprite.SetActive(false);
+            GameManager.GM.Player.interactableScript = null;
         }
     }
 
@@ -42,19 +42,19 @@ public class Interactable : MonoBehaviour {
     {
         if (collision.gameObject.tag == "Player")
         {        
-            GameManager._GM.Player.InteractSprite.SetActive(true);
-            GameManager._GM.Player.interactableScript = this;
+            GameManager.GM.Player.InteractSprite.SetActive(true);
+            GameManager.GM.Player.interactableScript = this;
         }
     }
 
     void OnCollisionStay2D(Collision2D collision)
     {
-        if (GameManager._GM._gameState == GameManager.GameState.Playing)
+        if (GameManager.GM.gameState == GameManager.GameState.Playing)
         {
             if (collision.gameObject.tag == "Player")
             {
-                GameManager._GM.Player.InteractSprite.SetActive(true);
-                GameManager._GM.Player.interactableScript = this;
+                GameManager.GM.Player.InteractSprite.SetActive(true);
+                GameManager.GM.Player.interactableScript = this;
             }
         }
     }
@@ -63,8 +63,8 @@ public class Interactable : MonoBehaviour {
     {
         if (collision.gameObject.tag == "Player")
         {        
-            GameManager._GM.Player.InteractSprite.SetActive(false);
-            GameManager._GM.Player.interactableScript = null;
+            GameManager.GM.Player.InteractSprite.SetActive(false);
+            GameManager.GM.Player.interactableScript = null;
         }
     }
 }

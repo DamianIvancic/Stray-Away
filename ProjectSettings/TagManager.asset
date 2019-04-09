@@ -9,6 +9,7 @@ TagManager:
   - Interactable
   - SiloTrigger
   - MainAudio
+  - Weapon
   layers:
   - Default
   - TransparentFX

@@ -10,7 +10,7 @@ public class AdviceGiver : Interactable
 
     void Start()
     {
-        _dialogueText = GameManager._GM.UI.DialogueText;
+        _dialogueText = GameManager.GM.UI.DialogueText;
         InitializeDialogue();
     }
 

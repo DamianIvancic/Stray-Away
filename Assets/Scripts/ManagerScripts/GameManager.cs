@@ -28,25 +28,25 @@ public class GameManager : MonoBehaviour {
     }
 
     [HideInInspector]
-    public GameState _gameState;
+    public GameState gameState;
     [HideInInspector]
-    public static GameManager _GM;
+    public static GameManager GM;
 
-    private void Awake()
+    void Awake()
     {
-        if (_GM == null)
+        if (GM == null)
         {        
-            _GM = this;
+            GM = this;
 
             int SceneIndex = SceneManager.GetActiveScene().buildIndex;
 
             switch (SceneIndex)
             {
                 case (0):
-                    _gameState = GameState.Menu;
+                    SetState(GameState.Menu);
                     break;
                 default:
-                    _gameState = GameState.Playing;
+                    SetState(GameState.Playing);
                     break;
             }
 
@@ -61,21 +61,19 @@ public class GameManager : MonoBehaviour {
 	
 	void Update ()
     {
-        if(_gameState == GameState.Playing)
+        if(gameState == GameState.Playing)
         {
             if(Input.GetKeyDown(KeyCode.Escape))   
                 PauseGame();      
         }   
-        else if(_gameState == GameState.GameOver)
+        else if(gameState == GameState.GameOver)
         {
             UI.SetGameOverMenu(true);
         }
-        else if(_gameState == GameState.Finished)
+        else if(gameState == GameState.Finished)
         {
-            Debug.Log("Finished");
-
             if (Input.GetKeyDown(KeyCode.Escape))
-            {    //LoadScene(0);
+            {   
                 Application.Quit();
             }
         }
@@ -88,18 +86,13 @@ public class GameManager : MonoBehaviour {
         switch (SceneIndex)
         {
             case (0):
-                _gameState = GameState.Menu;
+                SetState(GameState.Menu);
                 break;
-            case (1):                         
-                MainCam = FindObjectOfType<CameraController>();
-                if(MainAudio == null)
-                MainAudio = GameObject.FindWithTag("MainAudio").GetComponent<AudioSource>();
-                UI.SetPauseMenu(false);             
-                CutsceneManager.PlayCutscene(0);
-                break;
-            case (2):
-                _gameState = GameState.Finished;
-                break;   
+            case (1):
+                 MainCam = FindObjectOfType<CameraController>();
+                 if(MainAudio == null) MainAudio = GameObject.FindWithTag("MainAudio").GetComponent<AudioSource>();
+                 CutsceneManager.PlayCutscene(0);     
+                break; 
         }
     }
 
@@ -111,7 +104,12 @@ public class GameManager : MonoBehaviour {
 
     public void SetState(GameState state)
     {
-        _gameState = state;
+        if (state == GameState.Menu || state == GameState.Paused || state == GameState.GameOver)
+            Cursor.visible = true;
+        else
+            Cursor.visible = false;
+
+        gameState = state;
     }
 
     public void LoadScene(string sceneName)
@@ -122,7 +120,6 @@ public class GameManager : MonoBehaviour {
     public void LoadScene(int sceneNum)
     {
         SceneManager.LoadScene(sceneNum);
-
     }
 
     public void RestartScene()
@@ -130,19 +127,18 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void StartGame()
+    public void PlayGame()
     {     
         UI.UIHearts.SetActive(true);
 
         if (Inventory.Contains("PowerCell"))
             UI.PowerCellUI.gameObject.SetActive(true);
-
-       
-        if (UI.MeteorTimer._started)
+    
+        if (UI.MeteorTimer.started)
             UI.MeteorTimer.gameObject.SetActive(true);
 
-        UI.SetPauseMenu(false);
-        _gameState = GameState.Playing;  
+        UI.SetMenu(false);
+        SetState(GameState.Playing);
     }
 
     public void PauseGame()
@@ -152,11 +148,11 @@ public class GameManager : MonoBehaviour {
         if (Inventory.Contains("PowerCell"))
             UI.PowerCellUI.gameObject.SetActive(false);
     
-        if(UI.MeteorTimer._started)
+        if(UI.MeteorTimer.started)
             UI.MeteorTimer.gameObject.SetActive(false);
 
-        UI.SetPauseMenu(true);
-        _gameState = GameState.Paused;
+        UI.SetMenu(true);
+        SetState(GameState.Paused);
     }
 
     public void QuitGame()

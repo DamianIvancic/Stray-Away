@@ -22,15 +22,17 @@ public class UIManager : MonoBehaviour {
     public Timer MeteorTimer;
     public Text MeteorText;
     public GameObject RocketOptions;
+    public GameObject EndingScreen;
 
     private Resolution[] _resolutions;
    
 	void Start ()
     {
-        if (GameManager._GM.UI == this)
+        if (GameManager.GM.UI == this)
         {
          
             FullScreenToggle.isOn = Screen.fullScreen;
+            Screen.SetResolution(Display.main.systemWidth, Display.main.systemHeight, true);
 
             _resolutions = Screen.resolutions.Select(resolution => new Resolution { width = resolution.width, height = resolution.height }).Distinct().ToArray();
 
@@ -79,16 +81,28 @@ public class UIManager : MonoBehaviour {
         switch (SceneIndex)
         {
             case (0):
+                SetMenu(true);
+                SetOptionsMenu(false);
+                SetControlsMenu(false);
                 SetGameOverMenu(false);
-                SetPauseMenu(true);
-                UIHearts.SetActive(false);           
-                break;
-            case (1):            
-                SetPauseMenu(false);
-                SetGameOverMenu(false);
-                break;
-            case (2):
+                DialogueBox.SetActive(false);
                 UIHearts.SetActive(false);
+                PowerCellUI.gameObject.SetActive(false);
+                MeteorTimer.gameObject.SetActive(false);    
+                RocketOptions.SetActive(false);
+                EndingScreen.SetActive(false);                     
+                break;
+            case (1):
+                SetMenu(false);
+                SetOptionsMenu(false);
+                SetControlsMenu(false);
+                SetGameOverMenu(false);
+                DialogueBox.SetActive(false);
+                UIHearts.SetActive(false);
+                PowerCellUI.gameObject.SetActive(false);
+                MeteorTimer.gameObject.SetActive(false);
+                RocketOptions.SetActive(false);
+                EndingScreen.SetActive(false);
                 break;
         }
     }
@@ -100,7 +114,7 @@ public class UIManager : MonoBehaviour {
             if (PowerCellUI.gameObject.activeSelf == false)
                 PowerCellUI.gameObject.SetActive(true);
 
-            PowerCellUI.text = "x" + GameManager._GM.Inventory.GetCount(item);
+            PowerCellUI.text = "x" + GameManager.GM.Inventory.GetCount(item);
         }
     }
 
@@ -112,7 +126,7 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    public void SetPauseMenu(bool pause)
+    public void SetMenu(bool pause)
     {
         MenuPanel.SetActive(pause);
     }
@@ -136,6 +150,11 @@ public class UIManager : MonoBehaviour {
     public void SetRocketOptions(bool state)
     {
         RocketOptions.SetActive(state);
+
+        if(state == true)
+            GameManager.GM.SetState(GameManager.GameState.Paused);
+        else
+            GameManager.GM.SetState(GameManager.GameState.Playing);
     }
 
     public void SetFullScreen(bool fullScreen)
@@ -161,11 +180,11 @@ public class UIManager : MonoBehaviour {
 
     public void PlayButton()
     {
-        GameManager GM = GameManager._GM;
+        GameManager GM = GameManager.GM;
 
-        if (GM._gameState == GameManager.GameState.Menu)          
+        if (GM.gameState == GameManager.GameState.Menu)          
             GM.LoadScene(1);              
-        else if (GM._gameState == GameManager.GameState.Paused)
-            GM.StartGame();
+        else if (GM.gameState == GameManager.GameState.Paused)
+            GM.PlayGame();
     }
 }

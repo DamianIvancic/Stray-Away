@@ -41,25 +41,26 @@ public class InputManager : MonoBehaviour {
 	void Start ()
     {
     
-            string path = Application.persistentDataPath + "/Settings.dat";
+        string path = Application.persistentDataPath + "/Settings.dat";
+   
 
-            if (File.Exists(path))
-                KeyBindings = GameManager._GM.SaveLoadSystem.Settings.KeyBindings;
-            else
-            {
-                SetDefaultBindings();
-                GameManager._GM.InitializeSettings();
-            }
+        if (File.Exists(path))
+            KeyBindings = GameManager.GM.SaveLoadSystem.Settings.KeyBindings;
+        else
+        {
+            SetDefaultBindings();
+            GameManager.GM.InitializeSettings();
+        }
 
-            RefreshDisplayedKeyBindings();
-         
+        RefreshDisplayedKeyBindings();     
     }
 
     void Update()
     {
       
-        if (GameManager._GM._gameState == GameManager.GameState.Playing)
+        if (GameManager.GM.gameState == GameManager.GameState.Playing)
         {
+            
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
     
@@ -118,10 +119,10 @@ public class InputManager : MonoBehaviour {
 
                 CurrentKey = null;
 
-                GameManager._GM.InitializeSettings();
+                GameManager.GM.InitializeSettings();
 
-                if(GameManager._GM.Player != null)
-                    GameManager._GM.Player.RegisterCallbacks();            
+                if(GameManager.GM.Player != null)
+                    GameManager.GM.Player.RegisterCallbacks();            
             }
         }
     }

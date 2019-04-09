@@ -8,7 +8,7 @@ public class Labyrinth : MonoBehaviour
     {
         if(collider.tag == "Player")
         {
-            GameManager._GM.MainCam.ZoomEnabled = false;
+            GameManager.GM.MainCam.ZoomEnabled = false;
         }
     }
 
@@ -16,7 +16,7 @@ public class Labyrinth : MonoBehaviour
     {
         if (collider.tag == "Player")
         {
-            GameManager._GM.MainCam.ZoomEnabled = true;
+            GameManager.GM.MainCam.ZoomEnabled = true;
         }
     }
 }

@@ -35,7 +35,7 @@ public class InventorySlot : MonoBehaviour
     public void OnRemoveButton()
     {
         Debug.Log("OnRemoveButton()");
-        GameManager._GM.Inventory.Remove(item);
+        GameManager.GM.Inventory.Remove(item);
         //RemoveButton.interactable = false;
     }
 }

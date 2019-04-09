@@ -28,7 +28,7 @@ public class SiloController : Interactable
     void Start()
     {
         
-        TextScroller = GameManager._GM.UI.DialogueBox.GetComponentInChildren<TextScroller>();
+        TextScroller = GameManager.GM.UI.DialogueBox.GetComponentInChildren<TextScroller>();
         _siloAnim = GetComponent<Animator>();
 
         BoxCollider2D[] colliders = GetComponents<BoxCollider2D>();
@@ -72,7 +72,7 @@ public class SiloController : Interactable
     {
         if (_animationPlayed == false)
         {
-            GameManager._GM.CutsceneManager.PlayCutscene(1);
+            GameManager.GM.CutsceneManager.PlayCutscene(1);
             _animationPlayed = true;
         }
         else if (_animationPlayed == true)
@@ -83,7 +83,7 @@ public class SiloController : Interactable
 
     void PowerCellListener(Item item)
     {
-        if (item.ItemName == "PowerCell" && GameManager._GM.Inventory.GetCount(item) == 1)
+        if (item.ItemName == "PowerCell" && GameManager.GM.Inventory.GetCount(item) == 1)
         {
             _siloTrigger.enabled = true;
         }
@@ -106,7 +106,7 @@ public class SiloController : Interactable
 
     void InitializeOptions()
     {
-        OptionsPanel = GameManager._GM.UI.RocketOptions;
+        OptionsPanel = GameManager.GM.UI.RocketOptions;
 
         Button[] buttons = OptionsPanel.GetComponentsInChildren<Button>();
 
@@ -133,11 +133,12 @@ public class SiloController : Interactable
 
     void DisplayOptions()
     {
-        if (GameManager._GM.Inventory.Contains("PowerCell"))
+        if (GameManager.GM.Inventory.Contains("PowerCell"))
         {
-            int numPowerCells = GameManager._GM.Inventory.GetCount("PowerCell");
-
+            GameManager.GM.SetState(GameManager.GameState.Menu);
             OptionsPanel.SetActive(true);
+
+            int numPowerCells = GameManager.GM.Inventory.GetCount("PowerCell");
 
             if (numPowerCells < 3)
             {
@@ -168,10 +169,5 @@ public class SiloController : Interactable
                 DefendText.text = "Your deeds will be remembered";
             }
         }
-    }
-
-    public void ExitOptions()
-    {
-        OptionsPanel.SetActive(false);
     }
 }

@@ -30,7 +30,7 @@ public class TextScroller : MonoBehaviour
         {
             if (Input.anyKeyDown)
             {
-                GameManager._GM._gameState = GameManager.GameState.Playing;
+                GameManager.GM.SetState(GameManager.GameState.Playing);    
                 _displayText.text = "";
                 DialogueBox.SetActive(false); // turn off entire text box, not just text
             }
@@ -53,14 +53,14 @@ public class TextScroller : MonoBehaviour
 
     void PowerCellPickupText(Item item)
     {
-        if (item.ItemName == "PowerCell" && GameManager._GM.Inventory.GetCount(item) == 1)
+        if (item.ItemName == "PowerCell" && GameManager.GM.Inventory.GetCount(item) == 1)
             DisplayText("It's an object of highly concentrated energy. Perhaps it's from the meteor... But what is it doing here?");
     }
 
     public void DisplayText(string text)
     {
-        GameManager._GM._gameState = GameManager.GameState.Dialogue;
-        GameManager._GM.Player.ResetMovement();
+        GameManager.GM.SetState(GameManager.GameState.Dialogue);
+        GameManager.GM.Player.ResetMovement();
         DialogueBox.SetActive(true);
 
         _fullText = text;
